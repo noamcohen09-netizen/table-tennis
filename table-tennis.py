@@ -131,34 +131,35 @@ while running:
             red_win_x = blue_win_x = 1000
             blue_score = 0
             red_score = 0 
-    if keys[pygame.K_y]:
-       start = False
-       switch = 1
-       ai_x = 1000
-       ai = 'yes'
-       ball.y = 320
-    if keys[pygame.K_n]:
-       start = False
-       ai = 'no'
-       ai_x = 1000
+    if start == True:
+      if keys[pygame.K_y]:
+         start = False
+         switch = 1
+         ai_x = 1000
+         ai = 'yes'
+         ball.y = 320
+      if keys[pygame.K_n]:
+         start = False
+         ai = 'no'
+         ai_x = 1000
     if start == False:
-     if keys[pygame.K_w]:
-        red.y -= pedal_speed
-     if keys[pygame.K_s]:
-        red.y += pedal_speed
-     if keys[pygame.K_a]:
-        red.x -= pedal_speed
-     if keys[pygame.K_d]:
-        red.x += pedal_speed
-     if ai == 'no':
-      if keys[pygame.K_UP]:
-        blue.y -= pedal_speed
-      if keys[pygame.K_DOWN]:
-        blue.y += pedal_speed
-      if keys[pygame.K_LEFT]:
-        blue.x -= pedal_speed
-      if keys[pygame.K_RIGHT]:
-        blue.x += pedal_speed
+        if keys[pygame.K_UP]:
+              red.y -= pedal_speed
+        if keys[pygame.K_DOWN]:
+              red.y += pedal_speed
+        if keys[pygame.K_LEFT]:
+              red.x -= pedal_speed
+        if keys[pygame.K_RIGHT]:
+             red.x += pedal_speed
+        if ai == 'no':
+             if keys[pygame.K_w]:
+                 blue.y -= pedal_speed
+             if keys[pygame.K_s]:
+                 blue.y += pedal_speed
+             if keys[pygame.K_a]:
+                blue.x -= pedal_speed
+             if keys[pygame.K_d]:
+                 blue.x += pedal_speed
 
     RED_RECT = pygame.Rect(red.x + 35, red.y + 20, 35, 25)
     BLUE_RECT = pygame.Rect(blue.x + 35, blue.y + 55, 35, 25)
