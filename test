@@ -1,0 +1,190 @@
+import pygame, math
+from pygame.locals import K_w
+pygame.init()
+
+SCREEN_WIDTH = 350
+SCREEN_HIGHT = 600
+
+running = True 
+begin = True 
+
+pedal_speed = 0.5  # Adjusted for smoother acceleration
+drag = 0.9  # A small "friction" to slow the paddles down
+MAX_PADDLE_SPEED = 10
+PADDLE_WIDTH = 100
+PADDLE_HEIGHT = 100
+
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+clock = pygame.time.Clock()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT))
+background = pygame.image.load('./assets/sprites/yellow-background.png').convert_alpha()
+red_pedal = pygame.image.load('./assets/sprites/red-pedal.png').convert_alpha()
+blue_pedal = pygame.image.load('./assets/sprites/blue-pedal.png').convert_alpha()
+table = pygame.image.load('./assets/sprites/table.jpeg').convert_alpha()
+ball_img = pygame.image.load('./assets/sprites/ball.png').convert_alpha()
+
+scaled_red_pedal = pygame.transform.scale(red_pedal, (100, 100))
+scaled_blue_pedal = pygame.transform.scale(blue_pedal, (100, 100))
+scaled_table = pygame.transform.scale(table, (192, 346))
+scaled_ball = pygame.transform.scale(ball_img, (75, 75))
+
+PADDLE_WIDTH = scaled_red_pedal.get_width()
+PADDLE_HEIGHT = scaled_red_pedal.get_height()
+
+# Net properties
+NET_HEIGHT = 10
+NET_WIDTH = scaled_table.get_width()
+NET_Y = SCREEN_HIGHT // 2 - NET_HEIGHT // 2
+NET_X = SCREEN_WIDTH // 2 - NET_WIDTH // 2
+NET_RECT = pygame.Rect(NET_X, NET_Y, NET_WIDTH, NET_HEIGHT)
+
+# Gravity
+GRAVITY = 0.2
+
+class Red(pygame.sprite.Sprite):
+    def __init__(self, x ,y):
+        super().__init__() 
+        self.x = float(x) # Use float for more precise movement
+        self.y = float(y)
+        self.speed_x = 0.0
+        self.speed_y = 0.0
+        self.image = scaled_red_pedal
+       
+    def update(self):
+        # Apply "friction" to slow down the pedal
+        self.speed_x *= drag
+        self.speed_y *= drag
+        self.x += self.speed_x
+        self.y += self.speed_y
+
+class Blue(pygame.sprite.Sprite):
+    def __init__(self, x ,y):
+        super().__init__() 
+        self.x = float(x)
+        self.y = float(y)
+        self.speed_x = 0.0
+        self.speed_y = 0.0
+        self.image = scaled_blue_pedal
+       
+    def update(self):
+        self.speed_x *= drag
+        self.speed_y *= drag
+        self.x += self.speed_x
+        self.y += self.speed_y
+
+class Ball(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.x = float(x)
+        self.y = float(y)
+        self.speed_x = 4.0
+        self.speed_y = 4.0
+
+    def update(self):
+        self.speed_y += GRAVITY
+        self.x += self.speed_x
+        self.y += self.speed_y
+
+
+red = Red(125, 450)
+blue = Blue(125, 50)
+ball = Ball(127, 150)
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
+    keys = pygame.key.get_pressed()
+
+    # Move Red paddle by applying force (acceleration)
+    if keys[pygame.K_w]:
+        red.speed_y = max(-MAX_PADDLE_SPEED, red.speed_y - pedal_speed)
+    if keys[pygame.K_s]:
+        red.speed_y = min(MAX_PADDLE_SPEED, red.speed_y + pedal_speed)
+    if keys[pygame.K_a]:
+        red.speed_x = max(-MAX_PADDLE_SPEED, red.speed_x - pedal_speed)
+    if keys[pygame.K_d]:
+        red.speed_x = min(MAX_PADDLE_SPEED, red.speed_x + pedal_speed)
+
+    # Move Blue paddle
+    if keys[pygame.K_UP]:
+        blue.speed_y = max(-MAX_PADDLE_SPEED, blue.speed_y - pedal_speed)
+    if keys[pygame.K_DOWN]:
+        blue.speed_y = min(MAX_PADDLE_SPEED, blue.speed_y + pedal_speed)
+    if keys[pygame.K_LEFT]:
+        blue.speed_x = max(-MAX_PADDLE_SPEED, blue.speed_x - pedal_speed)
+    if keys[pygame.K_RIGHT]:
+        blue.speed_x = min(MAX_PADDLE_SPEED, blue.speed_x + pedal_speed)
+    
+    # Update object positions
+    red.update()
+    blue.update()
+    if not begin:
+       ball.update()
+
+    # Create and update Rects for collision detection *in each frame*
+    RED_RECT = scaled_red_pedal.get_rect(topleft=(int(red.x), int(red.y)))
+    BLUE_RECT = scaled_blue_pedal.get_rect(topleft=(int(blue.x), int(blue.y)))
+    BALL_RECT = scaled_ball.get_rect(topleft=(int(ball.x), int(ball.y)))
+
+    # Ball collision with Red Paddle
+    if BALL_RECT.colliderect(RED_RECT):
+        begin = False
+        ball.speed_y = -abs(ball.speed_y)  # Ensure upward bounce
+        # Transfer momentum from paddle to ball
+        ball.speed_x += red.speed_x * 0.5
+        center_difference = BALL_RECT.centerx - RED_RECT.centerx
+        ball.speed_x += center_difference * 0.1
+        # Reposition ball to prevent it from getting stuck inside the paddle
+        ball.y = RED_RECT.top - scaled_ball.get_height()
+
+    # Ball collision with Blue Paddle
+    if BALL_RECT.colliderect(BLUE_RECT):
+        ball.speed_y = abs(ball.speed_y) # Ensure downward bounce
+        # Transfer momentum from paddle to ball
+        ball.speed_x += blue.speed_x * 0.5
+        center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
+        ball.speed_x += center_difference * 0.1
+        # Reposition ball to prevent it from getting stuck
+        ball.y = BLUE_RECT.bottom
+
+    # Net collision
+    if BALL_RECT.colliderect(NET_RECT):
+        # If ball hits the top of the net, bounce up
+        if BALL_RECT.bottom > NET_RECT.top and BALL_RECT.top < NET_RECT.top:
+            ball.speed_y *= -1
+            ball.y = NET_RECT.top - scaled_ball.get_height()
+        # If ball hits the side of the net, bounce horizontally
+        elif BALL_RECT.right > NET_RECT.left and BALL_RECT.left < NET_RECT.right:
+            ball.speed_x *= -1
+        
+    # Ball collision with side walls
+    if ball.x <= 0 or ball.x >= SCREEN_WIDTH - scaled_ball.get_width():
+        ball.speed_x *= -1 
+    
+    # Game over condition (ball hits the ground or top)
+    if ball.y >= SCREEN_HIGHT - scaled_ball.get_height() or ball.y <= 0:
+        ball.x, ball.y = 127, 150
+        ball.speed_x = -ball.speed_x
+        ball.speed_y = -ball.speed_y
+        begin = True
+
+    # Paddle boundaries
+    red.x = max(0, min(red.x, SCREEN_WIDTH - PADDLE_WIDTH))
+    red.y = max(320, min(red.y, SCREEN_HIGHT - PADDLE_HEIGHT))
+
+    blue.x = max(0, min(blue.x, SCREEN_WIDTH - PADDLE_WIDTH))
+    blue.y = max(0, min(blue.y, 120))
+ 
+    screen.blit(background, (0, 0))
+    screen.blit(scaled_table, (70, 100))
+    pygame.draw.rect(screen, BLACK, NET_RECT)
+    screen.blit(scaled_ball, (int(ball.x), int(ball.y))) # Use int for blitting
+    screen.blit(scaled_red_pedal, (int(red.x), int(red.y)))
+    screen.blit(scaled_blue_pedal, (int(blue.x), int(blue.y)))
+    pygame.display.flip()
+
+    clock.tick(60)
