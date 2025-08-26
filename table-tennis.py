@@ -128,7 +128,6 @@ blue = Blue(125, 50)
 ball = Ball(127, 150) 
 
 while running:
-    # Reset paddle speed variables at the start of the loop
     red_pedal_speed_y = 0
     blue_pedal_speed_y = 0
 
@@ -199,7 +198,6 @@ while running:
            pygame.mixer.music.play()
         begin = False
         ball.speed_y *= -1 
-        # Add the paddle's vertical speed to the ball's speed
         ball.speed_y += red_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - RED_RECT.centerx
         ball.speed_x = center_difference * 0.1
@@ -211,7 +209,6 @@ while running:
           pygame.mixer.music.play()
         ball.speed_y *= -1
         begin = False
-        # Add the paddle's vertical speed to the ball's speed
         ball.speed_y += blue_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
         ball.speed_x = center_difference * 0.1
