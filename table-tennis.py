@@ -6,7 +6,7 @@ pygame.font.init()
 pygame.mixer.init()
 
 def restart():
-    global size, begin, switch 
+    global size, begin, switch, red_pedal_speed_x, red_pedal_speed_y, pedal_speed, ball_speed_x, ball_speed_y
     size = 75
     begin = True 
     ball.x = 127
@@ -22,6 +22,10 @@ def restart():
     red.y = 450
     blue.x = 125
     blue.y = 50
+    red_pedal_speed_x = 0
+    red_pedal_speed_y = 0
+    pedal_speed = 5
+    ball_speed_x, ball_speed_y = 4.0, 4.0
     
 
 SCREEN_WIDTH = 350
@@ -39,6 +43,9 @@ start = True
 counter = 0
 switch = 0 
 volume = 0
+
+ball_speed_x = 4.0
+ball_speed_y = 4.0
 
 font = pygame.font.SysFont(None, 48)
 
@@ -188,6 +195,8 @@ while running:
     BLUE_RECT = pygame.Rect(blue.x + 35, blue.y + 55, 35, 25)
     BALL_RECT = pygame.Rect(ball.x + 25, ball.y + 20, 30, 30)
 
+    
+
     if ai == 'yes':
        blue.x = ball.x
        switch = 1
@@ -197,31 +206,34 @@ while running:
            pygame.mixer.music.load(ping)
            pygame.mixer.music.play()
         begin = False
-        ball.speed_y *= -1 
-        ball.speed_y += red_pedal_speed_y * 0.5
+        ball_speed_y *= -1 
+        ball_speed_y += red_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - RED_RECT.centerx
-        ball.speed_x = center_difference * 0.1
+        ball_speed_x = center_difference * 0.1
         ball.y = RED_RECT.top - scaled_ball.get_height()
 
     if BALL_RECT.colliderect(BLUE_RECT):
         if volume == 0:
           pygame.mixer.music.load(pong)
           pygame.mixer.music.play()
-        ball.speed_y *= -1
+        ball_speed_y *= -1
         begin = False
-        ball.speed_y += blue_pedal_speed_y * 0.5
+        ball_speed_y += blue_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
-        ball.speed_x = center_difference * 0.1
+        ball_speed_x = center_difference * 0.1
         ball.y = BLUE_RECT.bottom
 
     if ball.x <= 0 or ball.x >= SCREEN_WIDTH - scaled_ball.get_width():
-        ball.speed_x *= -1 
+        ball_speed_x *= -1
+
+    ball.speed_x = ball_speed_x 
+    ball.speed_y = ball_speed_y
     
     if ball.y <= 0:
         if counter < 3:
           counter += 1
         red_score += 1
-        ball.speed_y *= -1
+        ball_speed_y *= -1
         if volume == 0:
           pygame.mixer.music.load(dead)
           pygame.mixer.music.play()
@@ -232,7 +244,7 @@ while running:
            if counter < 3:
               counter += 1
            blue_score += 1
-           ball.speed_y *= -1
+           ball_speed_y *= -1
            if volume == 0:
              pygame.mixer.music.load(dead)
              pygame.mixer.music.play()
