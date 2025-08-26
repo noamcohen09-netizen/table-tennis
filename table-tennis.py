@@ -1,5 +1,6 @@
-import pygame, math, time
-from pygame.locals import K_w
+import pygame
+import time
+
 pygame.init()
 pygame.font.init()
 pygame.mixer.init()
@@ -127,6 +128,10 @@ blue = Blue(125, 50)
 ball = Ball(127, 150) 
 
 while running:
+    # Reset paddle speed variables at the start of the loop
+    red_pedal_speed_y = 0
+    blue_pedal_speed_y = 0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -141,7 +146,7 @@ while running:
             volume = 0 
 
     if keys[pygame.K_SPACE]:
-        if red_score or blue_score == 7:
+        if red_score == 7 or blue_score == 7:
             restart()
             red_win_x = blue_win_x = 1000
             blue_score = 0
@@ -159,18 +164,22 @@ while running:
          ai_x = 1000
     if start == False:
         if keys[pygame.K_UP]:
-              red.y -= pedal_speed
+              red_pedal_speed_y = -pedal_speed
+              red.y += red_pedal_speed_y
         if keys[pygame.K_DOWN]:
-              red.y += pedal_speed
+              red_pedal_speed_y = pedal_speed
+              red.y += red_pedal_speed_y
         if keys[pygame.K_LEFT]:
               red.x -= pedal_speed
         if keys[pygame.K_RIGHT]:
              red.x += pedal_speed
         if ai == 'no':
              if keys[pygame.K_w]:
-                 blue.y -= pedal_speed
+                 blue_pedal_speed_y = -pedal_speed
+                 blue.y += blue_pedal_speed_y
              if keys[pygame.K_s]:
-                 blue.y += pedal_speed
+                 blue_pedal_speed_y = pedal_speed
+                 blue.y += blue_pedal_speed_y
              if keys[pygame.K_a]:
                 blue.x -= pedal_speed
              if keys[pygame.K_d]:
@@ -190,6 +199,8 @@ while running:
            pygame.mixer.music.play()
         begin = False
         ball.speed_y *= -1 
+        # Add the paddle's vertical speed to the ball's speed
+        ball.speed_y += red_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - RED_RECT.centerx
         ball.speed_x = center_difference * 0.1
         ball.y = RED_RECT.top - scaled_ball.get_height()
@@ -200,6 +211,8 @@ while running:
           pygame.mixer.music.play()
         ball.speed_y *= -1
         begin = False
+        # Add the paddle's vertical speed to the ball's speed
+        ball.speed_y += blue_pedal_speed_y * 0.5
         center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
         ball.speed_x = center_difference * 0.1
         ball.y = BLUE_RECT.bottom
@@ -264,13 +277,11 @@ while running:
  
     screen.blit(background, (0, 0))
     screen.blit(scaled_table, (70, 100))
+    
     screen.blit(scaled_ball, (int(ball.x), int(ball.y)))
     screen.blit(scaled_red_pedal, (int(red.x), int(red.y)))
     screen.blit(scaled_blue_pedal, (int(blue.x), int(blue.y)))
-    #pygame.draw.rect(screen, RED, BLUE_RECT, 0)
-    #pygame.draw.rect(screen, RED, RED_RECT, 0)
-    #pygame.draw.rect(screen, RED, BALL_RECT, 0)
-    #text 
+
     red_score_text = font_large.render(f'{red_score}', True, RED)
     colon_text = font_large.render(':', True, WHITE)
     blue_score_text = font_large.render(f'{blue_score}', True, BLUE)
@@ -287,13 +298,16 @@ while running:
     colon_rect.topleft = (red_score_rect.topright[0], y_position)
     blue_score_rect.topleft = (colon_rect.topright[0], y_position)
 
-    screen.blit(red_score_text, red_score_rect)
-    screen.blit(colon_text, colon_rect)
-    screen.blit(blue_score_text, blue_score_rect)
     screen.blit(scaled_red, (red_win_x, 0))
     screen.blit(scaled_blue, (blue_win_x, 0))
     screen.blit(scaled_ai_screen, (ai_x, 0))
+    screen.blit(red_score_text, red_score_rect)
+    screen.blit(colon_text, colon_rect)
+    screen.blit(blue_score_text, blue_score_rect)
+    
+    
+    
     pygame.display.flip()
-
     clock.tick(60)
+
 
