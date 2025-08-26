@@ -37,6 +37,7 @@ blue_score = 0
 start = True 
 counter = 0
 switch = 0 
+volume = 0
 
 font = pygame.font.SysFont(None, 48)
 
@@ -133,6 +134,12 @@ while running:
 
     keys = pygame.key.get_pressed()
 
+    if keys[pygame.K_v]:
+        if volume == 0:
+            volume = 1
+        else:
+            volume = 0 
+
     if keys[pygame.K_SPACE]:
         if red_score or blue_score == 7:
             restart()
@@ -178,8 +185,9 @@ while running:
        switch = 1
 
     if BALL_RECT.colliderect(RED_RECT):
-        pygame.mixer.music.load(ping)
-        pygame.mixer.music.play()
+        if volume == 0:
+           pygame.mixer.music.load(ping)
+           pygame.mixer.music.play()
         begin = False
         ball.speed_y *= -1 
         center_difference = BALL_RECT.centerx - RED_RECT.centerx
@@ -187,8 +195,9 @@ while running:
         ball.y = RED_RECT.top - scaled_ball.get_height()
 
     if BALL_RECT.colliderect(BLUE_RECT):
-        pygame.mixer.music.load(pong)
-        pygame.mixer.music.play()
+        if volume == 0:
+          pygame.mixer.music.load(pong)
+          pygame.mixer.music.play()
         ball.speed_y *= -1
         begin = False
         center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
@@ -203,8 +212,9 @@ while running:
           counter += 1
         red_score += 1
         ball.speed_y *= -1
-        pygame.mixer.music.load(dead)
-        pygame.mixer.music.play()
+        if volume == 0:
+          pygame.mixer.music.load(dead)
+          pygame.mixer.music.play()
         time.sleep(1)
         restart()
 
@@ -213,11 +223,13 @@ while running:
               counter += 1
            blue_score += 1
            ball.speed_y *= -1
-           pygame.mixer.music.load(dead)
-           pygame.mixer.music.play()
+           if volume == 0:
+             pygame.mixer.music.load(dead)
+             pygame.mixer.music.play()
            time.sleep(1)
-           pygame.mixer.music.load(ding)
-           pygame.mixer.music.play()
+           if volume == 0:
+             pygame.mixer.music.load(ding)
+             pygame.mixer.music.play()
            restart()
 
     if counter == 2:
@@ -228,13 +240,15 @@ while running:
         counter = 0
 
     if red_score == 7:
-        pygame.mixer.music.load(victory)
-        pygame.mixer.music.play()
+        if volume == 0:
+          pygame.mixer.music.load(victory)
+          pygame.mixer.music.play()
         red_win_x = 0 
 
     if blue_score == 7:
-       pygame.mixer.music.load(victory)
-       pygame.mixer.music.play()
+       if volume == 0:
+         pygame.mixer.music.load(victory)
+         pygame.mixer.music.play()
        blue_win_x = 0 
 
     red.x = max(0, min(red.x, SCREEN_WIDTH - PADDLE_WIDTH))
