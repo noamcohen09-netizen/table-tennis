@@ -126,7 +126,7 @@ while running:
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_SPACE]:
-        if red_win_x or blue_win_x == 7:
+        if red_score or blue_score == 7:
             restart()
             red_win_x = blue_win_x = 1000
             blue_score = 0
