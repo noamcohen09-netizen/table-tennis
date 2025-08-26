@@ -116,6 +116,13 @@ while running:
 
     keys = pygame.key.get_pressed()
 
+    if keys[pygame.K_SPACE]:
+        if red_win_x or blue_win_x == 0:
+            restart()
+            red_win_x = blue_win_x = 1000
+            blue_score = 0
+            red_score = 0 
+
     if keys[pygame.K_w]:
         red.y -= pedal_speed
     if keys[pygame.K_s]:
