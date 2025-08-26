@@ -8,10 +8,14 @@ def restart():
     size = 75
     begin = True 
     ball.x = 127
-    if switch == 0:
-      ball.y = 150
+    if ai == 'no':
+      if switch == 0:
+        ball.y = 150
+      else:
+        ball.y = 320
     else:
-      ball.y = 320
+       switch = 1
+       ball.y = 320
     red.x = 125
     red.y = 450
     blue.x = 125
@@ -21,14 +25,17 @@ def restart():
 SCREEN_WIDTH = 350
 SCREEN_HIGHT = 600
 
+ai = 'not_decided'
+ai_x = 0
+
 font_large = pygame.font.SysFont(None, 72)
 
 red_score = 0 
 blue_score = 0 
 
-switch = 0
-
+start = True 
 counter = 0
+switch = 0 
 
 font = pygame.font.SysFont(None, 48)
 
@@ -64,12 +71,14 @@ table = pygame.image.load('./assets/sprites/table.jpeg').convert_alpha()
 ball = pygame.image.load('./assets/sprites/ball.png').convert_alpha()
 red_wins = pygame.image.load('./assets/sprites/red_win.PNG').convert_alpha()
 blue_wins = pygame.image.load('./assets/sprites/blue_win.PNG').convert_alpha()
+ai_screen = pygame.image.load('./assets/sprites/ai?.JPG').convert_alpha()
 scaled_red_pedal = pygame.transform.scale(red_pedal, (100, 100))
 scaled_blue_pedal = pygame.transform.scale(blue_pedal, (100, 100))
 scaled_table = pygame.transform.scale(table, (192, 346))
 scaled_ball = pygame.transform.scale(ball, (size, size))
 scaled_red = pygame.transform.scale(red_wins, (350, 600))
 scaled_blue = pygame.transform.scale(blue_wins, (350, 600))
+scaled_ai_screen = pygame.transform.scale(ai_screen, (350, 600))
 
 class Red(pygame.sprite.Sprite):
     def __init__(self, x ,y):
@@ -122,28 +131,42 @@ while running:
             red_win_x = blue_win_x = 1000
             blue_score = 0
             red_score = 0 
-
-    if keys[pygame.K_w]:
+    if keys[pygame.K_y]:
+       start = False
+       switch = 1
+       ai_x = 1000
+       ai = 'yes'
+       ball.y = 320
+    if keys[pygame.K_n]:
+       start = False
+       ai = 'no'
+       ai_x = 1000
+    if start == False:
+     if keys[pygame.K_w]:
         red.y -= pedal_speed
-    if keys[pygame.K_s]:
+     if keys[pygame.K_s]:
         red.y += pedal_speed
-    if keys[pygame.K_a]:
+     if keys[pygame.K_a]:
         red.x -= pedal_speed
-    if keys[pygame.K_d]:
+     if keys[pygame.K_d]:
         red.x += pedal_speed
-
-    if keys[pygame.K_UP]:
+     if ai == 'no':
+      if keys[pygame.K_UP]:
         blue.y -= pedal_speed
-    if keys[pygame.K_DOWN]:
+      if keys[pygame.K_DOWN]:
         blue.y += pedal_speed
-    if keys[pygame.K_LEFT]:
+      if keys[pygame.K_LEFT]:
         blue.x -= pedal_speed
-    if keys[pygame.K_RIGHT]:
+      if keys[pygame.K_RIGHT]:
         blue.x += pedal_speed
 
     RED_RECT = pygame.Rect(red.x + 35, red.y + 20, 35, 25)
     BLUE_RECT = pygame.Rect(blue.x + 35, blue.y + 55, 35, 25)
     BALL_RECT = pygame.Rect(ball.x + 25, ball.y + 20, 30, 30)
+
+    if ai == 'yes':
+       blue.x = ball.x
+       switch = 1
 
     if BALL_RECT.colliderect(RED_RECT):
         begin = False
@@ -232,6 +255,7 @@ while running:
     screen.blit(blue_score_text, blue_score_rect)
     screen.blit(scaled_red, (red_win_x, 0))
     screen.blit(scaled_blue, (blue_win_x, 0))
+    screen.blit(scaled_ai_screen, (ai_x, 0))
     pygame.display.flip()
 
     clock.tick(60)
