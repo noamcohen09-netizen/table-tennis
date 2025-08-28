@@ -86,9 +86,9 @@ scaled_red_pedal = pygame.transform.scale(red_pedal, (100, 100))
 scaled_blue_pedal = pygame.transform.scale(blue_pedal, (100, 100))
 scaled_table = pygame.transform.scale(table, (192, 346))
 scaled_ball = pygame.transform.scale(ball, (size, size))
-scaled_red = pygame.transform.scale(red_wins, (350, 600))
-scaled_blue = pygame.transform.scale(blue_wins, (350, 600))
-scaled_ai_screen = pygame.transform.scale(ai_screen, (350, 600))
+scaled_red = pygame.transform.scale(red_wins, (350, 610))
+scaled_blue = pygame.transform.scale(blue_wins, (350, 610))
+scaled_ai_screen = pygame.transform.scale(ai_screen, (350, 610))
 
 ping = './assets/audio/ping-pong-64516-[AudioTrimmer.com].mp3'
 pong = './assets/audio/ping-pong-64516-[AudioTrimmer.com]-2.mp3'
@@ -205,6 +205,8 @@ while running:
         if volume == 0:
            pygame.mixer.music.load(ping)
            pygame.mixer.music.play()
+        if ai == 'yes':
+            ball_speed_y -= 2
         begin = False
         ball_speed_y *= -1 
         ball_speed_y += red_pedal_speed_y * 0.5
@@ -222,6 +224,8 @@ while running:
         center_difference = BALL_RECT.centerx - BLUE_RECT.centerx
         ball_speed_x = center_difference * 0.1
         ball.y = BLUE_RECT.bottom
+        if ai == 'yes':
+            ball_speed_y += 2
 
     if ball.x <= 0 or ball.x >= SCREEN_WIDTH - scaled_ball.get_width():
         ball_speed_x *= -1
